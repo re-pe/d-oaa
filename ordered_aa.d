@@ -130,7 +130,7 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
 
         auto aa = OrderedAA(["one": 1, "two": 2, "three": 3]);
 
-        aa[].sort;
+        sort(aa[]);
         assert(aa[].array == ["one", "three", "two"]);
 
         assert(!aa.remove("four"));
