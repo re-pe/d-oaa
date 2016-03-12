@@ -8,7 +8,7 @@ import std.traits;
  * It works by using an array to keep the key order in addition to a regular
  * associative array.
  */
-struct OrderedAA (T) if (isAssociativeArray!T) {
+struct OrderedAA(T) if (isAssociativeArray!T) {
     import std.algorithm;
     import std.typecons;
 
@@ -17,6 +17,7 @@ struct OrderedAA (T) if (isAssociativeArray!T) {
 
     private keyT[] _order;
     private T      _aa;
+
     alias _aa this;
 
     /**
