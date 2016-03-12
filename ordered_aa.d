@@ -19,20 +19,42 @@ struct OrderedAA (T) if (isAssociativeArray!T) {
     private T      _aa;
     alias _aa this;
 
-    /*
-     * TODO: replace by making it work with std.algorithm instead of keeping
-     *       a regular method
+    /**
+     * Associative Array based Constructor
      */
-    void reverse() {
-        std.algorithm.reverse(_order);
+    this(T base) {
+        _order.reserve(base.length);
+
+        foreach (key, value ; base) {
+            _order   ~= key;
+            _aa[key]  = value;
+        }
     }
 
-    /*
-     * TODO: replace by making it work with std.algorithm instead of keeping
-     *       a regular method
+    ///
+    unittest {
+        auto aa  = ["one": 1, "two": 2];
+        auto oaa = OrderedAA(aa);
+        assert(oaa == aa);
+    }
+
+    /**
+     * Ordered Associative Array based Constructor
      */
-    void sort() {
-        std.algorithm.sort(_order);
+    this(OrderedAA!T base) {
+        _order.reserve(base.length);
+
+        foreach (key, value ; base.byKeyValue) {
+            _order   ~= key;
+            _aa[key]  = value;
+        }
+    }
+
+    ///
+    unittest {
+        auto oaa_1 = OrderedAA(["one": 1, "two": 2]);
+        auto oaa_2 = OrderedAA(oaa_1);
+        assert(oaa_1 == oaa_2);
     }
 
     /**
