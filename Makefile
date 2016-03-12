@@ -2,7 +2,7 @@ DC=dmd
 
 all: doc test
 
-doc: ordered_aa.d
+doc: *.d
 	$(DC) -D -c $<
 
 test: ordered_aa.d
