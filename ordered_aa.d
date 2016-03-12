@@ -65,6 +65,13 @@ struct OrderedAA (T) if (isAssociativeArray!T) {
         _order = null;
     }
 
+    ///
+    unittest {
+        auto oaa = OrderedAA(["one": 1, "two": 2]);
+        oaa.clear;
+        assert(oaa[].length == 0);
+    }
+
     /**
      * Returns a range of keys in order
      */
@@ -110,10 +117,29 @@ struct OrderedAA (T) if (isAssociativeArray!T) {
         _aa.remove(key);
         return true;
     }
+
+    ///
+    unittest {
+        import std.array:     array;
+        import std.algorithm: sort;
+
+        auto aa = OrderedAA(["one": 1, "two": 2, "three": 3]);
+
+        aa[].sort;
+        assert(aa[].array == ["one", "three", "two"]);
+
+        assert(!aa.remove("four"));
+        assert(aa[].array == ["one", "three", "two"]);
+
+        assert(aa.remove("three"));
+        assert(aa[].array == ["one", "two"]);
+    }
 }
 
+///
 unittest {
-    import std.array;
+    import std.array:     array;
+    import std.algorithm: sort, reverse;
 
     OrderedAA!(int[string]) aa;
 
@@ -121,20 +147,21 @@ unittest {
     aa["two"]   = 2;
     aa["three"] = 3;
 
+    // Usage is similar to an ordinary Associative Arrays
+    assert(aa["three"] == 3);
+
+    // It can be compared to ordinary AAs too
     assert(aa == ["one":1, "two":2, "three":3]);
     assert(aa == ["two":2, "three":3, "one":1]);
+
+    // Slicing gives control over the ordered keys
     assert(aa[].array == ["one", "two", "three"]);
 
-    assert(!aa.remove("four"));
-    assert(aa.remove("three"));
-    assert(aa[].array == ["one", "two"]);
+    reverse(aa[]);
+    assert(aa[].array == ["three", "two", "one"]);
 
-    aa.reverse();
-    assert(aa[].array == ["two", "one"]);
-
-    aa.sort();
-    assert(aa[].array == ["one", "two"]);
-
-    aa.clear();
-    assert(aa[].array == []);
+    sort(aa[]);
+    assert(aa[].array == ["one", "three", "two"]);
 }
+
+
