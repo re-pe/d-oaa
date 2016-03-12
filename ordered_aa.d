@@ -93,8 +93,12 @@ struct OrderedAA (T) if (isAssociativeArray!T) {
         return _order.map!(x => tuple(x, _aa[x]));
     }
 
-    auto opIndex() {
+    auto ref opIndex() {
         return _order[];
+    }
+
+    auto ref opIndex(const keyT key) {
+        return _aa[key];
     }
 
     void opIndexAssign(const valueT value, const keyT key) {
