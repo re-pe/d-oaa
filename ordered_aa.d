@@ -113,7 +113,7 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
      * Returns false if the element wasn't in the array, true otherwise
      */
     bool remove(const keyT key) {
-        size_t index = _order.countUntil(key);
+        auto index = _order.countUntil(key);
 
         if (index == -1)
             return false;
