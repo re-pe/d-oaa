@@ -1,6 +1,13 @@
-import std.traits;
-
 /**
+ * OMap
+ *
+ * A fork of Ordered Associative Array, slightly modified by Rėdas Peškaitis
+ * Repository: https://github.com/re-pe/d-omap
+ *  
+ * Original Ordered Associative Array by Cédric Picard
+ * Email: cedric.picard@efrei.net
+ * Repository: https://github.com/cym13/miscD
+ *
  * Ordered Associative Array modeled from Python's OrderedDict.
  *
  * Subtypes built-in associative arrays.
@@ -8,7 +15,9 @@ import std.traits;
  * It works by using an array to keep the key order in addition to a regular
  * associative array.
  */
-struct OrderedAA(T) if (isAssociativeArray!T) {
+import std.traits;
+ 
+struct OMap(T) if (isAssociativeArray!T) {
     import std.algorithm;
     import std.typecons;
 
@@ -16,9 +25,9 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
     alias ValueType!T valueT;
 
     private keyT[] _order;
-    private T      _aa;
+    private T      _map;
 
-    alias _aa this;
+    alias _map this;
 
     /**
      * Associative Array based Constructor
@@ -28,49 +37,52 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
 
         foreach (key, value ; base) {
             _order   ~= key;
-            _aa[key]  = value;
+            _map[key] = value;
         }
     }
 
     ///
     unittest {
-        auto aa  = ["one": 1, "two": 2];
-        auto oaa = OrderedAA(aa);
-        assert(oaa == aa);
+        auto as_arr  = ["one": 1, "two": 2];
+        auto omap = OMap(as_arr);
+        assert(omap == as_arr);
     }
 
     /**
      * Ordered Associative Array based Constructor
      */
-    this(OrderedAA!T base) {
+    this(OMap!T base) {
         _order.reserve(base.length);
 
         foreach (key, value ; base.byKeyValue) {
             _order   ~= key;
-            _aa[key]  = value;
+            _map[key] = value;
         }
     }
 
     ///
     unittest {
-        auto oaa_1 = OrderedAA(["one": 1, "two": 2]);
-        auto oaa_2 = OrderedAA(oaa_1);
-        assert(oaa_1 == oaa_2);
+        auto omap_1 = OMap(["one": 1, "two": 2, "three": 3]);
+        auto omap_2 = OMap(omap_1);
+        assert(omap_1 == omap_2);
+        omap_1 = OMap(["three": 3, "two": 2, "one": 1]);
+        omap_2 = OMap(omap_1);
+        assert(omap_1 == omap_2);
     }
 
     /**
      * Remove all contents from the container.
      */
     void clear() {
-        _aa    = null;
+        _map   = null;
         _order = null;
     }
 
     ///
     unittest {
-        auto oaa = OrderedAA(["one": 1, "two": 2]);
-        oaa.clear;
-        assert(oaa[].length == 0);
+        auto omap = OMap(["one": 1, "two": 2]);
+        omap.clear;
+        assert(omap[].length == 0);
     }
 
     /**
@@ -84,14 +96,14 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
      * Returns a range of values in order
      */
     auto byValue() {
-        return _order.map!(x => _aa[x]);
+        return _order.map!(x => _map[x]);
     }
 
     /**
      * Returns a range of tuples (key, value) in order
      */
     auto byKeyValue() {
-        return _order.map!(x => tuple(x, _aa[x]));
+        return _order.map!(x => tuple(x, _map[x]));
     }
 
     auto ref opIndex() {
@@ -99,13 +111,13 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
     }
 
     auto ref opIndex(const keyT key) {
-        return _aa[key];
+        return _map[key];
     }
 
     void opIndexAssign(const valueT value, const keyT key) {
-        if (key !in _aa)
+        if (key !in _map)
             _order ~= key;
-        _aa[key] = value;
+        _map[key] = value;
     }
 
     /**
@@ -119,7 +131,7 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
             return false;
 
         _order = std.algorithm.remove(_order, index);
-        _aa.remove(key);
+        _map.remove(key);
         return true;
     }
 
@@ -128,16 +140,16 @@ struct OrderedAA(T) if (isAssociativeArray!T) {
         import std.array:     array;
         import std.algorithm: sort;
 
-        auto aa = OrderedAA(["one": 1, "two": 2, "three": 3]);
+        auto omap = OMap(["one": 1, "two": 2, "three": 3]);
 
-        sort(aa[]);
-        assert(aa[].array == ["one", "three", "two"]);
+        sort(omap[]);
+        assert(omap[].array == ["one", "three", "two"]);
 
-        assert(!aa.remove("four"));
-        assert(aa[].array == ["one", "three", "two"]);
+        assert(!omap.remove("four"));
+        assert(omap[].array == ["one", "three", "two"]);
 
-        assert(aa.remove("three"));
-        assert(aa[].array == ["one", "two"]);
+        assert(omap.remove("three"));
+        assert(omap[].array == ["one", "two"]);
     }
 }
 
@@ -146,27 +158,28 @@ unittest {
     import std.array:     array;
     import std.algorithm: sort, reverse;
 
-    OrderedAA!(int[string]) aa;
+    OMap!(int[string]) omap;
 
-    aa["one"]   = 1;
-    aa["two"]   = 2;
-    aa["three"] = 3;
+    omap["one"]   = 1;
+    omap["two"]   = 2;
+    omap["three"] = 3;
 
-    // Usage is similar to an ordinary Associative Arrays
-    assert(aa["three"] == 3);
+    // Usage is similar to an ordinary Associative Array
+    assert(omap["three"] == 3);
+
+    // Usage is similar to an ordinary array
 
     // It can be compared to ordinary AAs too
-    assert(aa == ["one":1, "two":2, "three":3]);
-    assert(aa == ["two":2, "three":3, "one":1]);
+    assert(omap == ["one":1, "two":2, "three":3]);
+    assert(omap == ["two":2, "three":3, "one":1]);
 
     // Slicing gives control over the ordered keys
-    assert(aa[].array == ["one", "two", "three"]);
+    assert(omap[].array == ["one", "two", "three"]);
 
-    reverse(aa[]);
-    assert(aa[].array == ["three", "two", "one"]);
+    reverse(omap[]);
+    assert(omap[].array == ["three", "two", "one"]);
 
-    sort(aa[]);
-    assert(aa[].array == ["one", "three", "two"]);
+    sort(omap[]);
+    assert(omap[].array == ["one", "three", "two"]);
+    
 }
-
-
