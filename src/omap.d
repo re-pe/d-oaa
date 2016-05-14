@@ -5,6 +5,7 @@
  * Additions:
  * 1) tuple based OMap constructor 
  * 2) method to export array of [key : value] tuples
+ * 3) methods to get, insert and delete values by integer index in the order of keys.
  *
  * Repository: https://github.com/re-pe/d-omap
  *  
