@@ -1,7 +1,11 @@
 /**
  * OMap
  *
- * A fork of Ordered Associative Array, slightly modified by Rėdas Peškaitis
+ * A fork of Ordered Associative Array, slightly modified by Rėdas Peškaitis.
+ * Additions:
+ * 1) tuple based OMap constructor 
+ * 2) method to export array of [key : value] tuples
+ *
  * Repository: https://github.com/re-pe/d-omap
  *  
  * Original Ordered Associative Array by Cédric Picard
@@ -65,9 +69,25 @@ struct OMap(T) if (isAssociativeArray!T) {
         auto omap_1 = OMap(["one": 1, "two": 2, "three": 3]);
         auto omap_2 = OMap(omap_1);
         assert(omap_1 == omap_2);
-        omap_1 = OMap(["three": 3, "two": 2, "one": 1]);
-        omap_2 = OMap(omap_1);
-        assert(omap_1 == omap_2);
+    }
+
+    /**
+     * Array of Tuples based Constructor
+     */
+    this(Tuple!(keyT, valueT)[] base) {
+        _order.reserve(base.length);
+
+        foreach (value ; base) {
+            _order   ~= value[0];
+            _map[value[0]] = value[1];
+        }
+    }
+
+    ///
+    unittest {
+        auto omap1 = OMap([tuple("one", 1), tuple("two", 2), tuple("three", 3)]);
+        auto omap2 = OMap(["one": 1, "two": 2, "three": 3]);
+        assert(omap1 == omap2);
     }
 
     /**
@@ -106,6 +126,21 @@ struct OMap(T) if (isAssociativeArray!T) {
         return _order.map!(x => tuple(x, _map[x]));
     }
 
+    /**
+     * Returns an array of tuples (key, value) in order
+     */
+    auto tupleArray() {
+        import std.array;
+        return array(this.byKeyValue);
+    }
+
+    unittest {
+        auto tup_arr1 = [tuple("one", 1), tuple("two", 2), tuple("three", 3)];
+        auto omap1 = OMap(tup_arr1);
+        auto tup_arr2 = omap1.tupleArray;
+        assert(tup_arr1 == tup_arr2);
+    }
+    
     auto ref opIndex() {
         return _order[];
     }
