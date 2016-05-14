@@ -1,2 +1,2 @@
 @echo off
-rdmd -de -w -unittest --main src/omap.d %*
+rdmd -de -w -unittest --main src/omap.d
