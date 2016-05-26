@@ -1,15 +1,15 @@
-## OMap
+## OAA
 
 This is a fork of _Ordered Associative Array_, slightly modified by Rėdas Peškaitis.
 
 #### Additions:
-1) tuple based OMap constructor<br />
+1) tuple based OAA constructor<br />
 2) method to export array of (key : value) tuples<br />
 3) methods to get, insert and delete values by integer index in the order of keys.
 
 #### Repository
 
-Repository: https://github.com/re-pe/d-omap
+Repository: https://github.com/re-pe/d-oaa
 
 #### Original code
  
